@@ -1,5 +1,4 @@
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.Vector;
 import java.util.Map;
 import java.util.HashMap;
@@ -14,57 +13,52 @@ public class MsgCodec {
   // Thanks to Bo Andersen for showing how to define proper enums:
   // https://codingexplained.com/coding/java/enum-to-integer-and-integer-to-enum
   private enum State {
-	  DECODE(1),
-	  ENCODE(2),
-	  UNDEFINED(3);
+    DECODE(1), ENCODE(2), UNDEFINED(3);
 
-	  private int value;
-	  private static Map<Integer, State> map = new HashMap<>();
+    private int value;
+    private static Map<Integer, State> map = new HashMap<>();
 
-	  private State(int value) {
-		  this.value = value;
-	  }
-	  static {
-        for (State state : State.values()) {
-            map.put(state.value, state);
-        }
-	  }
+    private State(int value) {
+      this.value = value;
+    }
 
-	  public static State valueOf(int state) {
-		  return (State) map.get(state);
-	  }
+    static {
+      for (State state : State.values()) {
+        map.put(state.value, state);
+      }
+    }
 
-	  public int getValue() {
-		  return value;
-	  }
+    public static State valueOf(int state) {
+      return (State) map.get(state);
+    }
+
+    public int getValue() {
+      return value;
+    }
   }
 
   public enum MessageType {
-	  STATUS_SERVER(1),
-	  STATUS_CLIENT(2),
-	  LINE(3),
-	  CLEANUP(4),
-	  TEXT(5),
-	  INVALID(6);
-	  private int value;
-	  private static Map<Integer, MessageType> map = new HashMap<>();
+    STATUS_SERVER(1), STATUS_CLIENT(2), LINE(3), CLEANUP(4), TEXT(5), INVALID(6);
+    private int value;
+    private static Map<Integer, MessageType> map = new HashMap<>();
 
-	  private MessageType(int value) {
-		  this.value = value;
-	  }
-	  static {
-        for (MessageType type : MessageType.values()) {
-            map.put(type.value, type);
-        }
-	  }
-	  
-	  public static MessageType valueOf(int type) {
-		  return (MessageType) map.get(type);
-	  }
+    private MessageType(int value) {
+      this.value = value;
+    }
 
-	  public int getValue() {
-		  return value;
-	  }
+    static {
+      for (MessageType type : MessageType.values()) {
+        map.put(type.value, type);
+      }
+    }
+
+    public static MessageType valueOf(int type) {
+      return (MessageType) map.get(type);
+    }
+
+    public int getValue() {
+      return value;
+    }
   }
 
   public static final int MAX_MESSAGE_SIZE = 500;
@@ -81,9 +75,9 @@ public class MsgCodec {
     this.bb_.flip();
     identify();
     state_ = State.DECODE;
-    return  type_;
+    return type_;
   }
-  
+
   public MessageType getType() {
     return type_;
   }
@@ -97,30 +91,30 @@ public class MsgCodec {
     type_ = MessageType.INVALID;
     final int actualSize = bb_.limit();
 
-    if (actualSize >= HEADER_SIZE) {	
+    if (actualSize >= HEADER_SIZE) {
       final MessageType reportedType = MessageType.valueOf(bb_.getInt());
       final int reportedSize = bb_.getInt();
 
       if (reportedSize != actualSize) {
         return;
       }
-      switch(reportedType) {
+      switch (reportedType) {
       case STATUS_CLIENT:
-    	  if ((bb_.limit() > HEADER_SIZE) && (bb_.limit() <= MAX_NAME_SIZE)) {
-    		  type_ = MessageType.STATUS_CLIENT;
-    	  }
-    	  break;
+        if ((bb_.limit() > HEADER_SIZE) && (bb_.limit() <= MAX_NAME_SIZE)) {
+          type_ = MessageType.STATUS_CLIENT;
+        }
+        break;
       case LINE:
-    	  if (reportedSize % 4 == 0) {
-    		  type_ = MessageType.LINE;
-    	  }
-    	  break;
+        if (reportedSize % 4 == 0) {
+          type_ = MessageType.LINE;
+        }
+        break;
       case STATUS_SERVER:
       case CLEANUP:
       case TEXT:
       case INVALID:
-    	  type_ = reportedType;
-    	  break;
+        type_ = reportedType;
+        break;
       }
     }
   }
@@ -136,16 +130,14 @@ public class MsgCodec {
     return true;
   }
 
-  public boolean encodeServerStatusMsg(String text)
-  {
-    if (text != null)
-    {
+  public boolean encodeServerStatusMsg(String text) {
+    if (text != null) {
       int textSize = text.getBytes().length;
       int msgSize = HEADER_SIZE + textSize;
       bb_.clear();
       bb_.putInt(MessageType.STATUS_SERVER.getValue());
       bb_.putInt(msgSize);
-      
+
       bb_.put(text.getBytes(), 0, textSize);
       bb_.flip();
       state_ = State.UNDEFINED;
@@ -153,22 +145,19 @@ public class MsgCodec {
     }
     return false;
   }
-  
-  public String decodeServerStatusMsg()
-  {
+
+  public String decodeServerStatusMsg() {
     String text = null;
-    if (type_ == MessageType.STATUS_SERVER)
-    {
-      if (bb_.position() < bb_.limit())
-      {
+    if (type_ == MessageType.STATUS_SERVER) {
+      if (bb_.position() < bb_.limit()) {
         byte[] bytearr = new byte[bb_.remaining()];
         bb_.get(bytearr);
-        text = new String(bytearr); 
+        text = new String(bytearr);
       }
     }
     return text;
   }
-  
+
   public boolean encodeClientStatusMsg(String text, boolean status) {
     if (text != null) {
       int textSize = text.getBytes().length;
@@ -189,14 +178,14 @@ public class MsgCodec {
     }
     return false;
   }
-  
+
   public String decodeClientStatusMsg() {
     String text = null;
     if ((type_ == MessageType.STATUS_CLIENT) || (type_ == MessageType.TEXT)) {
       if (bb_.position() < bb_.limit()) {
         byte[] bytearr = new byte[bb_.remaining()];
         bb_.get(bytearr);
-        text = new String(bytearr); 
+        text = new String(bytearr);
       }
     }
     return text;
@@ -211,7 +200,8 @@ public class MsgCodec {
 
     int msgSize = HEADER_SIZE + (numLines * LINE_SIZE);
     if (msgSize > bb_.capacity()) {
-      //System.out.println("MsgCodec: Capacity problems: msgSize: " + msgSize + " bb.capacity: " + bb.capacity());
+      // System.out.println("MsgCodec: Capacity problems: msgSize: " + msgSize + "
+      // bb.capacity: " + bb.capacity());
       state_ = State.UNDEFINED;
       return numLinesEncoded;
     }
