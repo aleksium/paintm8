@@ -5,11 +5,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.net.*;
 
-public class MultiDrawServer {
+public class Paintm8Server {
     static public int port = 3174;
     static public Painter p = null;
 
-    public MultiDrawServer() {
+    public Paintm8Server() {
     }
 
     public static void main(String[] args) {
@@ -24,7 +24,7 @@ public class MultiDrawServer {
                     p = new Painter();
                     System.out.println("Done creating Painter object");
 
-                    frame = new JFrame ("MultiDraw Server");
+                    frame = new JFrame ("Paintm8 Server");
                     JMenuBar bar = new JMenuBar();
 
                     JMenu canvasMenu = new JMenu("Canvas");

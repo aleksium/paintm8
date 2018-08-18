@@ -6,7 +6,7 @@ import java.net.*;
 import javax.swing.JApplet;
 import javax.swing.JOptionPane;
 
-public class MultiDrawClient extends JApplet {
+public class Paintm8Client extends JApplet {
     public static Painter p = null;
     public static ClientReceive in = null;
     public static ClientSend out = null;
@@ -14,9 +14,9 @@ public class MultiDrawClient extends JApplet {
     public static ShoutBox shoutBox = null;
 
     public static void main(String[] args) {
-        MultiDrawClient theApplet = new MultiDrawClient();
+        Paintm8Client theApplet = new Paintm8Client();
         theApplet.startItAll();
-        JFrame frame = new JFrame("WhiteBoard Terminal");
+        JFrame frame = new JFrame("Paintm8");
         frame.setContentPane(theApplet);
 
         frame.setLayout(new BorderLayout());
@@ -58,7 +58,7 @@ public class MultiDrawClient extends JApplet {
 
     public void startItAll() {
         try {
-            hostIp = "192.168.1.154";
+            hostIp = "127.0.0.1";
 
             DatagramSocket sock = new DatagramSocket();
             ClientData myLines = new ClientData(false);
@@ -67,15 +67,11 @@ public class MultiDrawClient extends JApplet {
 
             out = new ClientSend(sock, myLines);
             shoutBox = new ShoutBox(out);
-            shoutBox.setForeground(Color.LIGHT_GRAY);
-            shoutBox.setBackground(Color.DARK_GRAY);
             in  = new ClientReceive(sock, p, shoutBox);
 
             JMenuBar bar = new JMenuBar();
             JMenu connectionMenu = new JMenu("Connection");
             JMenuItem address = new JMenuItem("Address");
-            address.setForeground(Color.LIGHT_GRAY);
-            address.setBackground(Color.DARK_GRAY);
             address.setMnemonic('A');
             address.addActionListener(
                     new ActionListener() 
@@ -88,11 +84,7 @@ public class MultiDrawClient extends JApplet {
             JMenu canvasMenu = new JMenu("Actions");
 
             JMenuItem cleanup = new JMenuItem("Wipe");
-            cleanup.setForeground(Color.LIGHT_GRAY);
-            cleanup.setBackground(Color.DARK_GRAY);
             JMenuItem nickName = new JMenuItem("Nick name");
-            nickName.setForeground(Color.LIGHT_GRAY);
-            nickName.setBackground(Color.DARK_GRAY);
             cleanup.setMnemonic('W');
             nickName.setMnemonic('N');
             cleanup.addActionListener(new ActionListener() 
@@ -115,8 +107,6 @@ public class MultiDrawClient extends JApplet {
 
             bar.add(connectionMenu);
             bar.add(canvasMenu);
-            bar.setBackground(Color.DARK_GRAY);
-            bar.setForeground(Color.LIGHT_GRAY);
             setJMenuBar(bar);
             in.start();
             out.start();
@@ -136,6 +126,6 @@ public class MultiDrawClient extends JApplet {
         }
     }
 
-    public MultiDrawClient() {
+    public Paintm8Client() {
     }
 }
