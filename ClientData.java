@@ -35,7 +35,7 @@ class ClientStatus {
         this.port = port;
         this.tag = tag;
         update();
-        setName("Michelangelo");
+        setName("Painter");
     }
 
     public void update() {
@@ -113,7 +113,7 @@ public class ClientData {
     }
 
     private String getAllNames() {
-        String names = "Attendees: ";
+        String names = "Painters: ";
 
         Set<Entry<String, ClientStatus>> s = clients_.entrySet();
         Iterator<Entry<String, ClientStatus>> i = s.iterator();
