@@ -82,24 +82,19 @@ public class Painter extends JPanel {
 
         int rgba = Color.HSBtoRGB((float)superColor_/18.0f, 0.9f, 0.7f) & 0x00ffffff;
         rgba |= (0x90 & 0xff) << 24;
-        System.out.println("the rgba: " + rgba);
         panelG_.setColor(new Color(rgba, true));
 
         panelG_.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         panelG_.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         panelG_.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
 
-        // superColor = new Color(0.1f, 0.2f, 1.0f, 0.7f); // Blue
-        // superColor = new Color(0.92f, 0.43f, 0.92f, 0.4f); // pink 
-
         textColor_ = new Color(0.0f, 0.0f, 0.0f, 1.0f);
-        backgroundColor_ = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        backgroundColor_ = new Color(0.1f, 0.1f, 0.1f, 1.0f);
         statusFont_ = new Font(Font.SERIF, Font.PLAIN, 12);
 
         txtg_.setFont(statusFont_);
         txtg_.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        setStatusTxt("Welcome!");
         addMouseListener(
                 new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
@@ -149,14 +144,12 @@ public class Painter extends JPanel {
                 panelG_.setColor(backgroundColor_);
                 panelG_.fillRect(0,0,PIXEL_WIDTH, PIXEL_HEIGHT);
             } else {
-
                 panelG_.setStroke(fatStroke_);
                 int rgba = Color.HSBtoRGB((float)superColor_/18.0f, 0.5f, 0.5f) & 0x00ffffff;
                 rgba |= (0x90 & 0xff) << 24;
                 panelG_.setColor(new Color(rgba, true));
                 for (int i = 0; i < lines_.size(); ++i) {
                     VectorStatus line = lines_.get(i);
-                    setStatusTxt("super color is : " + (line.c[4]) + " and divided by 18 it becomes " + ((float)line.c[4] / 18.0f));
                     if (superColor_ != line.c[4]) {
                         superColor_ = line.c[4];
 
@@ -168,14 +161,10 @@ public class Painter extends JPanel {
                 }
                 lines_.clear();
             }
-            if (updateStatus_) {
-                //setStatusTxt("You have drawn " + numLinesDrawn_ + " lines!");
-            }
             g.drawImage(panelImage_, 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT, null); 
-            g.drawImage(textImage_, 0, 0, STATUS_BAR_LENGTH, STATUS_BAR_HEIGHT, null);
+            //g.drawImage(textImage_, 0, 0, STATUS_BAR_LENGTH, STATUS_BAR_HEIGHT, null);
         }
     }
-
 
     public Dimension getPreferredSize()	{
         return new Dimension(PIXEL_WIDTH, PIXEL_HEIGHT);
@@ -204,11 +193,6 @@ public class Painter extends JPanel {
 
     public void refreshCanvas()	{
         repaint();
-    }
-
-    public void setColor(Color color) {
-        //Graphics2D grr = (Graphics2D)this.getGraphics();
-        //grr.setColor(color);
     }
 
     public void setStatusTxt(String status)	{

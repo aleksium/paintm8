@@ -56,7 +56,6 @@ public class ClientReceive extends Thread {
     }
 
     public void run() {
-        painter.setColor(drawColor);
         while (stillGoing()) {
             if (connected) {
                 try {
