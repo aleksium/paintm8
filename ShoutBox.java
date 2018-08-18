@@ -10,20 +10,11 @@ public class ShoutBox extends JPanel implements ActionListener {
 
     public ShoutBox(ClientSend client) {
         super(new GridBagLayout());
-        setForeground(Color.BLACK);
-        setBackground(Color.DARK_GRAY);
         textField_ = new JTextField(0);
-        textField_.setForeground(Color.LIGHT_GRAY);
-        textField_.setBackground(Color.DARK_GRAY);
-        textField_.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         textField_.addActionListener(this);
         textArea_ = new JTextArea(5, 0);
         textArea_.setEditable(false);
-        textArea_.setForeground(Color.LIGHT_GRAY);
-        textArea_.setBackground(Color.DARK_GRAY);
-        textArea_.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         JScrollPane scrollPane = new JScrollPane(textArea_);
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
         client_ = client;
 
         //Add Components to this panel.
