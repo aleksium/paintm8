@@ -13,6 +13,7 @@ From the paintm8 folder:
 2. Set up a server: ```java Paintm8Server```
 3. And start however many clients you want: ```java Paintm8Client``` 
 
+![showing how paintm8 works](paintm8_example.gif)
 
 ## Disclaimer
 
