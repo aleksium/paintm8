@@ -50,9 +50,9 @@ The client’s rendering of the canvas is very fast. Not because it’s clever, 
 The various procedures that make up the client-server program are handled by different threads.
 
 The client, for example, can be split in three:
-- ```A``` The interactive thread, registering the mouse movement and clicks. Paintm8Client.java
-- ```B``` The transmission thread, responsible for sending the “paint strokes” to the server. ClientTransmission.java
-- ```C``` And the reception thread, listening for other painter's strokes and applying them to the canvas. ClientReception.java
+- ```A``` The interactive thread, registering the mouse movement and clicks. ```Paintm8Client.java```
+- ```B``` The transmission thread, responsible for sending the “paint strokes” to the server. ```ClientTransmission.java```
+- ```C``` And the reception thread, listening for other painter's strokes and applying them to the canvas. ```ClientReception.java```
 
 From time to time, all of these threads need to read or write to common resources, like the list of vectors. And, as anyone who has dealt with threads knows, care must be taken to synchronization them. Noone wants race conditions or iconsistent data. A consequence of the synchronization, though, is that one thread might have to wait for the other to finish. Especially if that other thread spends too much time.
 To ensure a smooth user experience, it was important to scrutinize the work done during these lock-downs. I experienced that even small changes would yield big improvements.
