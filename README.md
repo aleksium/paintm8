@@ -8,12 +8,16 @@ Paintm8 is a fun little Java-project I did in 2009. It consists of two parts: A 
 
 Both parts are written in Java, so, to try it out, make sure to run an up-to-date version of the Java Development Kit (JDK).
 
-From the paintm8 folder:
+From the paintm8/src folder:
 1. Compile the server and client ```javac *.java```
 2. Set up a server: ```java Paintm8Server```
-3. And start however many clients you want: ```java Paintm8Client``` 
+3. And start however many clients you want: ```java Paintm8Client```
 
 ![showing how paintm8 works](paintm8_example.gif)
+
+The client tries to connect to 127.0.0.1 (localhost) by default.
+
+Change this from the menu: ```Connection -> Address ```
 
 ## Disclaimer
 
