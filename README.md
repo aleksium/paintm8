@@ -25,7 +25,7 @@ You may have realized already, but it should be made clear that Paintm8 is by no
 
 ## Idea behind
 
-I can remember back to my school years. Sometimes, a buddy and I would see who could outdraw the other. Using a single piece of paper, such a game could start with one of us drawing an elaborate fortresses. The other one would see this as a dare to sketch out a way of breaching the structure's solid walls. The fortress, then, had to be modified to counter the breach. And so the game would continue, back and forth, until the paper had filled up with scribbles.
+I can remember back to my school years. Sometimes, a buddy and I would see who could outdraw the other. Using a single piece of paper, such a game could start with one of us drawing an elaborate fortress. The other one would see this as a dare to sketch out a way of breaching the structure's solid walls. The fortress, then, had to be modified to counter the breach. And so the game would continue, back and forth, until the paper had filled up with scribbles.
 
 Wouldn’t it be fun if this type of collaborative drawing was possible using computers over the internet? At least I thought so, back in 2009. At the time, I hadn’t come by any communication-gadget that provided that type of experience, so I set out to see if I could make it happen.
 
@@ -45,7 +45,7 @@ Fairly basic stuff, right? Well, to make it a bit more interesting I really want
 A daunting task, I thought initially. But, in the end, it didn't require all that much novelty. I will mention some of the things I found interesting and the lessons learned:
 
 ### UDP, not TCP
-My initial version had the server and clients communicate through TCP. Arguably the easier and better protocol for most cases, but with its inherent buffering and overhead, the latency got too high. The paint didn’t show up quickly enough. I had to change to UDP. With it, I got my low latency, but at a cost. The bare-bone datagram protocol could not guarantee that the packets arrived, or, if they did, that they got there in the correct order. Not a big issue, I decided, given the carefree nature of the project.  
+My initial version had the server and clients communicate through TCP. Arguably the easier and better protocol for most cases, but with its inherent buffering and overhead, the latency got too high. The paint just didn’t show up quickly enough. I had to change to UDP. With it, I got my low latency, but at a cost. The bare-bone datagram protocol could not guarantee that the packets arrived, or, if they did, that they got there in the correct order. Not a big issue, I decided, given the carefree nature of the project.  
 
 ### Draw only what is new
 The client’s rendering of the canvas is very fast. Not because it’s clever, but because it’s super simple: When the mentioned vectors are sent its way, they are drawn as lines on top of the previous bitmap representation of the canvas. Nothing more. That means only a small part of the canvas needs to be rendered, saving time.
@@ -63,9 +63,9 @@ To ensure a smooth user experience, it was important to scrutinize the work done
 
 ### Double buffering
 
-I suppose double buffering is often a good fit when dealing with parallel processes. I certainly made use of it to great effect. With this simple and elegant technique, I could practically decouple two of the threads working on the same data, namely the transmission thread (```B```) and the interactive thread (```A```). Using two buffers instead of only one, ```B``` could continue to transmit the backlog of paint strokes without blocking ```A``` from accumulating fresh paint. The actual buffer switch was the only thing that needed to run inside the lock. The result was a much smoother user experience.
+One of my a-ha moments during development was when I realized that I could introduce double buffering to minimize the lock-downs. Of course I shouldn't have been surprised that parallel processes and double buffering would be a good fit, but it was nice to see the effect of such a simple and elegant technique. With it, I could practically decouple two of the threads working on the same data, namely the transmission thread (```B```) and the interactive thread (```A```). Using two buffers instead of only one, ```B``` could continue to transmit the backlog of paint strokes without blocking ```A``` from accumulating fresh paint. The actual buffer switch was the only thing that needed to run inside the lock. The result was a much smoother user experience.
 
 ## Todos
-There's a lot that could be done better here. However, my immediate plan is to leave the program as it is; Functioning, and with a code sprinkled with what could have been examples of how not to do it. I don't whish to stop anyone from contributing, though. Have at it!
+There's a lot that could be done better here. However, my immediate plan is to leave the program as it is; Functioning, and with some tell-tale signs that I still had/have a lot to learn. I don't whish to stop anyone from contributing, though. Fix-es, refatoring and features are welcome. Have at it!
 
-Happy painting!
+And happy painting!
