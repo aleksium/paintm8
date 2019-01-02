@@ -66,6 +66,6 @@ To ensure a smooth user experience, it was important to scrutinize the work done
 One of my a-ha moments during development was when I realized that I could introduce double buffering to minimize the lock-downs. Of course I shouldn't have been surprised that parallel processes and double buffering would be a good fit, but it was nice to see the effect of such a simple and elegant technique. With it, I could practically decouple two of the threads working on the same data, namely the transmission thread (```B```) and the interactive thread (```A```). Using two buffers instead of only one, ```B``` could continue to transmit the backlog of paint strokes without blocking ```A``` from accumulating fresh paint. The actual buffer switch was the only thing that needed to run inside the lock. The result was a much smoother user experience.
 
 ## Todos
-There's a lot that could be done better here. However, my immediate plan is to leave the program as it is; Functioning, and with some tell-tale signs that I still had/have a lot to learn. I don't whish to stop anyone from contributing, though. Fix-es, refatoring and features are welcome. Have at it!
+There's a lot that could be done better here. However, my immediate plan is to leave the program as it is; Functioning, and with some tell-tale signs that I still had/have a lot to learn. I don't wish to stop anyone from contributing, though. Fix-es, refatoring and features are welcome. Have at it!
 
 And happy painting!
