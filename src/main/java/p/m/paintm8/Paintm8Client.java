@@ -15,14 +15,14 @@ public class Paintm8Client {
     public static void main(String[] args) {
         ClientData myLines = new ClientData(false);
         Painter painter = new Painter(myLines);
-
+        JMenuBar bar = new JMenuBar();
+        
         try {
             DatagramSocket sock = new DatagramSocket();
 
             ClientSend out = new ClientSend(sock, myLines);
             ClientReceive in = new ClientReceive(sock, painter);
 
-            JMenuBar bar = new JMenuBar();
             JMenu connectionMenu = new JMenu("Connection");
             JMenuItem address = new JMenuItem("Address");
             address.setMnemonic('A');
@@ -53,11 +53,13 @@ public class Paintm8Client {
 
         JFrame frame = new JFrame("Paintm8 Client");
 
+        frame.setJMenuBar(bar);
+        
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
         frame.setVisible(true);
         frame.add(painter, BorderLayout.NORTH);
-
+        
         frame.setResizable(false);
         frame.setVisible(true);
         frame.pack();
