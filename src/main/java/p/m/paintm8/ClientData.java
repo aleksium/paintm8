@@ -32,7 +32,7 @@ public class ClientData {
             String ipport = ip + port;
             ClientStatus cs = clients.get(ipport);
             if (cs == null) {
-                if (clients.size() < 10) {
+                if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
                     var clientStatus = new ClientStatus(ip, port);
                     clientStatus.update();
                     clients.put(ipport, clientStatus);

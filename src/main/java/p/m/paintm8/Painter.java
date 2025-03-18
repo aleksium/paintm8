@@ -15,19 +15,19 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import javax.swing.JPanel;
 
 public class Painter extends JPanel {
 
-    public static final int PIXEL_WIDTH = 700;
-    public static final int PIXEL_HEIGHT = 450;
+    private static final Rectangle FULL_SCREEN = new Rectangle(0, 0, Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT);
 
-    public final int STATUS_BAR_LENGTH = PIXEL_WIDTH;
+    public final int STATUS_BAR_LENGTH = Environment.CANVAS_WIDTH;
     public final int STATUS_BAR_HEIGHT = 20;
 
-    private final BufferedImage panelImage = new BufferedImage(PIXEL_WIDTH, PIXEL_HEIGHT, BufferedImage.TYPE_INT_RGB);
+    private final BufferedImage panelImage = new BufferedImage(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final Graphics2D panel = panelImage.createGraphics();
-    private Rectangle windowOfChange = new Rectangle(0, 0, PIXEL_WIDTH, PIXEL_HEIGHT);
+    private Rectangle boundingBox = null;
 
     private final ClientData outgoingPaint;
 
@@ -44,27 +44,39 @@ public class Painter extends JPanel {
         this.outgoingPaint = outgoingPaint;
 
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        setPreferredSize(new Dimension(PIXEL_WIDTH, PIXEL_HEIGHT));
 
-        panel.setColor(Color.ORANGE);
         panel.setStroke(new BasicStroke(5));
+        var random = new Random(123);
 
+        var gray = Color.getHSBColor(0, 0, 0.2f);
+        for (int w = 0; w < Environment.CANVAS_WIDTH; w++) {
+            for (int h = 0; h < Environment.CANVAS_HEIGHT; h++) {
+                panel.setColor(random.nextBoolean() ? gray : Color.darkGray);
+                panel.drawRect(w, h, 1, 1);
+            }
+        }
         addHandlers();
     }
 
     @Override
     public void paintComponent(Graphics graphics) {
-        // graphics.drawImage(panelImage, 0, 0, PIXEL_WIDTH, PIXEL_HEIGHT, null);
-        graphics.drawImage(panelImage, windowOfChange.x, windowOfChange.y, 
-                windowOfChange.x + windowOfChange.width, windowOfChange.y + windowOfChange.height,
-                windowOfChange.x, windowOfChange.y, 
-                windowOfChange.x + windowOfChange.width, windowOfChange.y + windowOfChange.height,
+        Rectangle box;
+        if (boundingBox == null) {
+            box = FULL_SCREEN;
+        } else {
+            box = boundingBox;
+            boundingBox = null;
+        }
+        graphics.drawImage(panelImage, box.x, box.y,
+                box.x + box.width, box.y + box.height,
+                box.x, box.y,
+                box.x + box.width, box.y + box.height,
                 null);
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(PIXEL_WIDTH, PIXEL_HEIGHT);
+        return new Dimension(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT);
     }
 
     @Override
@@ -78,11 +90,18 @@ public class Painter extends JPanel {
     }
 
     public void drawLines(List<Line> additionalLines) {
+        panel.setColor(Color.ORANGE);
         for (var line : additionalLines) {
             panel.drawLine(line.c[0], line.c[1], line.c[2], line.c[3]);
         }
-        windowOfChange = ascertainWindowOfChange(additionalLines);
-        repaint(windowOfChange);
+        var localBox = determineBoundingBox(additionalLines);
+        if (boundingBox == null) {
+            boundingBox = localBox;
+        } else {
+            localBox.add(boundingBox);
+            boundingBox = localBox;
+        }
+        repaint(localBox);
     }
 
     private void addHandlers() {
@@ -112,14 +131,22 @@ public class Painter extends JPanel {
         });
     }
 
-    private Rectangle ascertainWindowOfChange(Collection<Line> lines) {
-        var rectangle = new Rectangle();
-
+    private Rectangle determineBoundingBox(Collection<Line> lines) {
+        Rectangle rectangle = null;
+        if (lines == null || lines.isEmpty()) {
+            return new Rectangle();
+        }
         for (var line : lines) {
-            rectangle.add(new Point(line.c[0], line.c[1]));
-            rectangle.add(new Point(line.c[2], line.c[3]));
+            if (rectangle == null) {
+                rectangle = new Rectangle(new Point(line.c[0], line.c[1]));
+                rectangle.add(new Point(line.c[2], line.c[3]));
+            } else {
+                rectangle.add(new Point(line.c[0], line.c[1]));
+                rectangle.add(new Point(line.c[2], line.c[3]));
+            }
         }
         rectangle.grow(3, 3);
+
         return rectangle;
     }
 
@@ -131,14 +158,20 @@ public class Painter extends JPanel {
             x2 = e.getX();
             y2 = e.getY();
 
+            panel.setColor(Color.YELLOW);
             panel.drawLine(x1, y1, x2, y2);
-
             Line line = new Line(x1, y1, x2, y2);
             outgoingPaint.addLine(line);
 
-            windowOfChange = ascertainWindowOfChange(Collections.singleton(line));
+            var localBox = determineBoundingBox(Collections.singleton(line));
 
-            repaint(windowOfChange);
+            if (boundingBox == null) {
+                boundingBox = localBox;
+            } else {
+                localBox.add(boundingBox);
+                boundingBox = localBox;
+            }
+            repaint(localBox);
 
             x1 = x2;
             y1 = y2;
@@ -146,6 +179,6 @@ public class Painter extends JPanel {
     }
 
     private boolean inBounds(MouseEvent e) {
-        return e.getX() < PIXEL_WIDTH && e.getY() < PIXEL_HEIGHT;
+        return e.getX() < Environment.CANVAS_WIDTH && e.getY() < Environment.CANVAS_HEIGHT;
     }
 }
