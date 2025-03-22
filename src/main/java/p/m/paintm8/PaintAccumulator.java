@@ -1,4 +1,3 @@
-
 package p.m.paintm8;
 
 import java.util.LinkedList;

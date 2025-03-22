@@ -1,8 +1,8 @@
 package p.m.paintm8;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -42,8 +42,6 @@ public class Painter extends JPanel {
 
         this.outgoingPaint = outgoingPaint;
 
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
         panel.setStroke(new BasicStroke(5));
         var random = new Random(123);
 
@@ -54,6 +52,8 @@ public class Painter extends JPanel {
                 panel.drawRect(w, h, 1, 1);
             }
         }
+        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+        
         addHandlers();
     }
 
@@ -91,11 +91,11 @@ public class Painter extends JPanel {
     public void drawLines(List<Line> additionalLines) {
         for (var line : additionalLines) {
             var index = line.c[4];
-            if (index < 0 ||  index >= COLOR_PALETTE.length) {
+            if (index < 0 || index >= COLOR_PALETTE.length) {
                 continue;
             }
             panel.setColor(COLOR_PALETTE[index]);
-            
+
             panel.drawLine(line.c[0], line.c[1], line.c[2], line.c[3]);
         }
         var localBox = determineBoundingBox(additionalLines);
