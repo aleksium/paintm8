@@ -1,29 +1,30 @@
 package p.m.paintm8;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PaintAccumulator {
 
     private static final int MAX_ACCUMULATED_LINES = 4096;
 
-    private final LinkedList<Line> currentLines = new LinkedList<>();
+    private final Queue<Line> currentLines = new ConcurrentLinkedQueue<>();
 
     public PaintAccumulator() {
     }
 
-    public void addLines(List<Line> lines) {
+    public void addLines(Collection<Line> lines) {
         if (lines.size() > MAX_ACCUMULATED_LINES) {
             return;
         }
         var overlap = currentLines.size() + lines.size() - MAX_ACCUMULATED_LINES;
         for (int i = 0; i < overlap; i++) {
-            currentLines.removeFirst();
+            currentLines.poll();
         }
         currentLines.addAll(lines);
     }
 
-    public LinkedList<Line> currentLines() {
+    public Collection<Line> currentLines() {
         return currentLines;
     }
 

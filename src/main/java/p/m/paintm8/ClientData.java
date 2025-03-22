@@ -67,18 +67,18 @@ public class ClientData {
     public void addLine(Line v) {
         synchronized (this) {
             in.add(v);
-            if (isServer) {
-                paintAccumulator.addLines(List.of(v));
-            }
+        }
+        if (isServer) {
+            paintAccumulator.addLines(List.of(v));
         }
     }
 
     public void addLines(List<Line> lines) {
         synchronized (this) {
             in.addAll(lines);
-            if (isServer) {
-                paintAccumulator.addLines(lines);
-            }
+        }
+        if (isServer) {
+            paintAccumulator.addLines(lines);
         }
     }
 
