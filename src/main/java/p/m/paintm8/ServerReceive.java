@@ -25,10 +25,12 @@ class ServerReceive extends Thread {
         if (msgType != MsgCodec.MessageType.INVALID) {
             String ip = (String) receivePacket.getAddress().getHostAddress();
             int port = receivePacket.getPort();
-            clientData.updateRxStatus(ip, port);
+            var index = clientData.updateRxStatus(ip, port);
 
             if (msgType == MsgCodec.MessageType.LINE) {
                 var lines = msgCodec.decodeLines();
+                lines.forEach(line -> line.c[4] = index);
+                
                 clientData.addLines(lines);
                 p.drawLines(lines);
             } else if (msgType == MsgCodec.MessageType.STATUS_CLIENT) {

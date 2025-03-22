@@ -24,24 +24,27 @@ public class ClientData {
         }
     }
 
-    public void updateRxStatus(String ip, int port) {
+    public int updateRxStatus(String ip, int port) {
         if (!isServer) {
-            return;
+            return -1;
         }
         synchronized (this) {
             String ipport = ip + port;
             ClientStatus cs = clients.get(ipport);
             if (cs == null) {
                 if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
-                    var clientStatus = new ClientStatus(ip, port);
+                    var clientStatus = new ClientStatus(ip, port, clients.size());
                     clientStatus.update();
                     clients.put(ipport, clientStatus);
                     pushAccumulatedPaint();
+                    return clientStatus.getIndex();
                 }
             } else {
                 cs.update();
+                return cs.getIndex();
             }
         }
+        return 0;
     }
 
     private void dropDisconnects() {

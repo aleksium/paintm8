@@ -10,7 +10,8 @@ import java.util.HashMap;
 public class MsgCodec {
 
     private static final int HEADER_SIZE = 8;
-    private static final int LINE_SIZE = 16;
+    private static final int BYTES_PER_INTEGER = 4;
+    private static final int LINE_SIZE = Line.NUM_OF_INTEGERS * BYTES_PER_INTEGER;
 
     private ByteBuffer bb = ByteBuffer.allocate(MsgCodec.MAX_MESSAGE_SIZE);
     private MessageType type;
@@ -111,7 +112,7 @@ public class MsgCodec {
                     }
                 }
                 case LINE -> {
-                    if (reportedSize % 4 == 0) {
+                    if (reportedSize % BYTES_PER_INTEGER == 0) {
                         type = MessageType.LINE;
                     }
                 }
@@ -197,7 +198,7 @@ public class MsgCodec {
         if (state == State.ENCODE) {
             for (int i = offset; i < numLines + offset; ++i) {
                 Line vs = lines.get(i);
-                for (int j = 0; j < 4; ++j) {
+                for (int j = 0; j < Line.NUM_OF_INTEGERS; ++j) {
                     bb.putInt(vs.c[j]);
                 }
                 ++numLinesEncoded;
@@ -215,7 +216,7 @@ public class MsgCodec {
         if (type == MessageType.LINE) {
             int endPos = bb.limit() - LINE_SIZE;
             while (bb.position() <= endPos) {
-                lines.add(new Line(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt()));
+                lines.add(new Line(bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt(), bb.getInt()));
             }
         }
         state = State.UNDEFINED;

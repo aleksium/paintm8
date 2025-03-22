@@ -22,8 +22,7 @@ public class Painter extends JPanel {
 
     private static final Rectangle FULL_SCREEN = new Rectangle(0, 0, Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT);
 
-    public final int STATUS_BAR_LENGTH = Environment.CANVAS_WIDTH;
-    public final int STATUS_BAR_HEIGHT = 20;
+    private final Color[] COLOR_PALETTE = new Color[]{Color.ORANGE, Color.CYAN, Color.GREEN, Color.PINK, Color.RED, Color.MAGENTA, Color.YELLOW, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
 
     private final BufferedImage panelImage = new BufferedImage(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final Graphics2D panel = panelImage.createGraphics();
@@ -90,8 +89,13 @@ public class Painter extends JPanel {
     }
 
     public void drawLines(List<Line> additionalLines) {
-        panel.setColor(Color.ORANGE);
         for (var line : additionalLines) {
+            var index = line.c[4];
+            if (index < 0 ||  index >= COLOR_PALETTE.length) {
+                continue;
+            }
+            panel.setColor(COLOR_PALETTE[index]);
+            
             panel.drawLine(line.c[0], line.c[1], line.c[2], line.c[3]);
         }
         var localBox = determineBoundingBox(additionalLines);
@@ -160,7 +164,7 @@ public class Painter extends JPanel {
 
             panel.setColor(Color.YELLOW);
             panel.drawLine(x1, y1, x2, y2);
-            Line line = new Line(x1, y1, x2, y2);
+            Line line = new Line(x1, y1, x2, y2, 0);
             outgoingPaint.addLine(line);
 
             var localBox = determineBoundingBox(Collections.singleton(line));
