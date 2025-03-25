@@ -8,10 +8,10 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 public class ClientSend extends Thread {
-    
+
     private final DatagramSocket sock;
     private InetAddress ip = null;
-    private final ClientData myLines;
+    private final ClientData clientData;
     private boolean stillGoing = true;
     private boolean connected = false;
     private final ByteBuffer buffer = ByteBuffer.allocate(MsgCodec.MAX_MESSAGE_SIZE);
@@ -20,7 +20,7 @@ public class ClientSend extends Thread {
 
     public ClientSend(DatagramSocket sock, ClientData myLines) {
         this.sock = sock;
-        this.myLines = myLines;
+        this.clientData = myLines;
     }
 
     public void done() {
@@ -65,42 +65,45 @@ public class ClientSend extends Thread {
     @Override
     public void run() {
         int snoozes = 0;
-        
-        while (stillGoing()) {
-            if (connected) {
-                var lines = myLines.getAllLines();
-                if (!lines.isEmpty()) {
-                    msgCodec.mountEncodeBuffer(buffer);
-                    if (msgCodec.encodeLines(lines, 0, lines.size()) > 0) {
-                        sendToServer();
+        try {
+            while (stillGoing()) {
+                if (connected) {
+                    var lines = clientData.getAllLines();
+                    if (!lines.isEmpty()) {
+                        msgCodec.mountEncodeBuffer(buffer);
+                        if (msgCodec.encodeLines(lines, 0, lines.size()) > 0) {
+                            sendToServer();
+                        } else {
+                            System.out.println("ClientSend: Unable to encode");
+                        }
                     } else {
-                        System.out.println("ClientSend: Unable to encode");
-                    }
-                } else {
-                    try {
                         Thread.sleep(25); // Snooze for 25 millies
                         if (++snoozes > 400) {
                             snoozes = 0;
                             msgCodec.mountEncodeBuffer(buffer);
                             boolean okToSend;
                             synchronized (this) {
-                                okToSend = msgCodec.encodeClientStatusMsg("I am here"); 
+                                okToSend = msgCodec.encodeClientStatusMsg("I am here");
                             }
                             if (okToSend) {
                                 sendToServer();
                             }
                         }
-                    } catch (InterruptedException e) {
-                        System.out.println(e);
+                        if (clientData.isWipeRequested()) {
+                            msgCodec.mountEncodeBuffer(buffer);
+                            boolean readyToSend = msgCodec.encodeWipeCommand();
+                            if (readyToSend) {
+                                clientData.setWipeRequested(false);
+                                sendToServer();
+                            }
+                        }
                     }
-                }
-            } else {
-                try {
+                } else {
                     Thread.sleep(500);
-                } catch(InterruptedException e) {
-                    System.out.println(e);
                 }
             }
+        } catch (InterruptedException e) {
+            System.out.println(e);
         }
         System.out.println("output thread terminated");
     }

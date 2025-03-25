@@ -41,6 +41,13 @@ class ServerSend extends Thread
                 } catch(InterruptedException e) {
                     System.out.println(e);
                 }
+                if (clientData.isWipeRequested()) {
+                    msgCodec.mountEncodeBuffer(buffer);
+                    if (msgCodec.encodeWipeCommand()) {
+                        sendToAll();
+                        clientData.setWipeRequested(false);
+                    }
+                }
             }
         }
     }

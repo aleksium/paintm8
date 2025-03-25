@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientData {
 
@@ -14,6 +15,7 @@ public class ClientData {
     private List<Line> out = lines2;
     private boolean phase1 = true;
     private PaintAccumulator paintAccumulator = null;
+    private final AtomicBoolean wipeRequested = new AtomicBoolean();
     private final boolean isServer;
 
     ClientData(boolean isServer) {
@@ -97,6 +99,17 @@ public class ClientData {
             }
         }
         return out;
+    }
+    
+    public void setWipeRequested(boolean wipeRequested) {
+        this.wipeRequested.set(wipeRequested);
+        if (isServer) {
+            paintAccumulator.clearLines();
+        }
+    }
+    
+    public boolean isWipeRequested() {
+        return wipeRequested.get();
     }
 
     public int clientCount() {

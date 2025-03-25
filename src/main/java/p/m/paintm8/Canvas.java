@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.JPanel;
 
-public class Painter extends JPanel {
+public final class Canvas extends JPanel {
 
     private static final Rectangle FULL_SCREEN = new Rectangle(0, 0, Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT);
 
@@ -38,24 +38,15 @@ public class Painter extends JPanel {
 
     private boolean drawing = false;
 
-    public Painter(ClientData outgoingPaint) {
+    public Canvas(ClientData outgoingPaint) {
         super(true);
 
         this.outgoingPaint = outgoingPaint;
 
         panel.setStroke(new BasicStroke(5));
-        var random = new Random(123);
         panel.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        var gray = Color.getHSBColor(0, 0, 0.2f);
-        for (int w = 0; w < Environment.CANVAS_WIDTH; w++) {
-            for (int h = 0; h < Environment.CANVAS_HEIGHT; h++) {
-                panel.setColor(random.nextBoolean() ? gray : Color.darkGray);
-                panel.drawRect(w, h, 1, 1);
-            }
-        }
-        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-        
+        drawBackground();
         addHandlers();
     }
 
@@ -65,8 +56,10 @@ public class Painter extends JPanel {
         if (boundingBox == null) {
             box = FULL_SCREEN;
         } else {
-            box = boundingBox;
-            boundingBox = null;
+            synchronized(this) {
+                box = boundingBox;
+                boundingBox = null;
+            }
         }
         graphics.drawImage(panelImage, box.x, box.y,
                 box.x + box.width, box.y + box.height,
@@ -101,11 +94,14 @@ public class Painter extends JPanel {
             panel.drawLine(line.c[0], line.c[1], line.c[2], line.c[3]);
         }
         var localBox = determineBoundingBox(additionalLines);
-        if (boundingBox == null) {
-            boundingBox = localBox;
-        } else {
-            localBox.add(boundingBox);
-            boundingBox = localBox;
+        
+        synchronized (this) {
+            if (boundingBox == null) {
+                boundingBox = localBox;
+            } else {
+                localBox.add(boundingBox);
+                boundingBox = localBox;
+            }
         }
         repaint(localBox);
     }
@@ -135,6 +131,22 @@ public class Painter extends JPanel {
                 handleMouseDrag(e);
             }
         });
+    }
+    
+    public void drawBackground() {
+        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+        
+        var random = new Random(123);
+        var gray = Color.getHSBColor(0, 0, 0.2f);
+        for (int w = 0; w < Environment.CANVAS_WIDTH; w++) {
+            for (int h = 0; h < Environment.CANVAS_HEIGHT; h++) {
+                panel.setColor(random.nextBoolean() ? gray : Color.darkGray);
+                panel.drawRect(w, h, 1, 1);
+            }
+        }
+        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+        
+        repaint();
     }
 
     private Rectangle determineBoundingBox(Collection<Line> lines) {
@@ -171,11 +183,13 @@ public class Painter extends JPanel {
 
             var localBox = determineBoundingBox(Collections.singleton(line));
 
-            if (boundingBox == null) {
-                boundingBox = localBox;
-            } else {
-                localBox.add(boundingBox);
-                boundingBox = localBox;
+            synchronized (this) {
+                if (boundingBox == null) {
+                    boundingBox = localBox;
+                } else {
+                    localBox.add(boundingBox);
+                    boundingBox = localBox;
+                }
             }
             repaint(localBox);
 

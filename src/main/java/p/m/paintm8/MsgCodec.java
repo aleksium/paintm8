@@ -43,7 +43,7 @@ public class MsgCodec {
     }
 
     public enum MessageType {
-        STATUS_SERVER(1), STATUS_CLIENT(2), LINE(3), INVALID(4);
+        STATUS_SERVER(1), STATUS_CLIENT(2), LINE(3), WIPE(4), INVALID(5);
 
         private int value;
         private static final Map<Integer, MessageType> map = new HashMap<>();
@@ -116,7 +116,7 @@ public class MsgCodec {
                         type = MessageType.LINE;
                     }
                 }
-                case STATUS_SERVER, INVALID ->
+                case STATUS_SERVER, WIPE, INVALID ->
                     type = reportedType;
             }
         }
@@ -177,6 +177,16 @@ public class MsgCodec {
             }
         }
         return text;
+    }
+
+    public boolean encodeWipeCommand() {
+        int msgSize = HEADER_SIZE;
+        bb.clear();
+        bb.putInt(MessageType.WIPE.getValue());
+        bb.putInt(msgSize);
+        bb.flip();
+        state = State.UNDEFINED;
+        return true;
     }
 
     public int encodeLines(List<Line> lines, int offset, int numLines) {

@@ -13,14 +13,14 @@ import javax.swing.JOptionPane;
 public class Paintm8Client {
 
     public static void main(String[] args) {
-        ClientData myLines = new ClientData(false);
-        Painter painter = new Painter(myLines);
+        ClientData clientData = new ClientData(false);
+        Canvas painter = new Canvas(clientData);
         JMenuBar bar = new JMenuBar();
         
         try {
             DatagramSocket sock = new DatagramSocket();
 
-            ClientSend out = new ClientSend(sock, myLines);
+            ClientSend out = new ClientSend(sock, clientData);
             ClientReceive in = new ClientReceive(sock, painter);
 
             JMenu connectionMenu = new JMenu("Connection");
@@ -32,10 +32,17 @@ public class Paintm8Client {
                 out.login(hostIp);
                 JOptionPane.showMessageDialog(null, "Start drawing!", "Status", JOptionPane.INFORMATION_MESSAGE);
             });
-            JMenu canvasMenu = new JMenu("Actions");
 
             connectionMenu.add(address);
             bar.add(connectionMenu);
+            JMenu canvasMenu = new JMenu("Canvas");
+            JMenuItem wipe = new JMenuItem("Wipe");
+            wipe.setMnemonic('W');
+            wipe.addActionListener((ActionEvent e) -> {
+                clientData.setWipeRequested(true);
+                painter.drawBackground();
+            });
+            canvasMenu.add(wipe);
             bar.add(canvasMenu);
             in.start();
             out.start();

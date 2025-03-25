@@ -7,13 +7,13 @@ import java.net.DatagramSocket;
 public class ClientReceive extends Thread {
 
     private final DatagramSocket sock;
-    private final Painter painter;
+    private final Canvas painter;
     private final DatagramPacket receivePacket = new DatagramPacket(new byte[MsgCodec.MAX_MESSAGE_SIZE], MsgCodec.MAX_MESSAGE_SIZE);
     private final MsgCodec msgCodec = new MsgCodec();
     private boolean connected = false;
     private boolean stillGoing = true;
 
-    public ClientReceive(DatagramSocket sock, Painter painter) {
+    public ClientReceive(DatagramSocket sock, Canvas painter) {
         this.sock = sock;
         this.painter = painter;
     }
@@ -68,13 +68,20 @@ public class ClientReceive extends Thread {
 
         MsgCodec.MessageType msgType = msgCodec.mountDecodeBuffer(receivePacket);
 
-        if (msgType == MsgCodec.MessageType.LINE) {
-            painter.drawLines(msgCodec.decodeLines());
-        } else if (msgType == MsgCodec.MessageType.STATUS_SERVER) {
-            String text = msgCodec.decodeServerStatusMsg();
-            if (text != null) {
-                if (!text.contains("Ping from server")) {
+        if (null != msgType) switch (msgType) {
+            case LINE -> painter.drawLines(msgCodec.decodeLines());
+            case WIPE -> {
+                painter.drawBackground(); 
+                System.out.println("client received wipe command");
+            }
+            case STATUS_SERVER -> {
+                String text = msgCodec.decodeServerStatusMsg();
+                if (text != null) {
+                    if (!text.contains("Ping from server")) {
+                    }
                 }
+            }
+            default -> {
             }
         }
     }

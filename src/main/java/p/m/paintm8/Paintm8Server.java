@@ -12,7 +12,7 @@ public class Paintm8Server {
         try {
             ClientData clientData = new ClientData(true);
             DatagramSocket server = new DatagramSocket(Environment.SERVER_PORT);  
-            Painter painter = new Painter(clientData);
+            Canvas painter = new Canvas(clientData);
           
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 

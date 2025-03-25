@@ -7,14 +7,14 @@ import java.net.DatagramSocket;
 class ServerReceive extends Thread {
 
     private final DatagramSocket server;
-    private final Painter p;
+    private final Canvas p;
     private final byte data[] = new byte[MsgCodec.MAX_MESSAGE_SIZE];
     private final DatagramPacket receivePacket = new DatagramPacket(data, data.length);
     private final ClientData clientData;
     private boolean keepGoing = true;
     private final MsgCodec msgCodec = new MsgCodec();
 
-    ServerReceive(DatagramSocket server, ClientData clientData, Painter p) {
+    ServerReceive(DatagramSocket server, ClientData clientData, Canvas p) {
         this.server = server;
         this.clientData = clientData;
         this.p = p;
@@ -27,20 +27,28 @@ class ServerReceive extends Thread {
             int port = receivePacket.getPort();
             var index = clientData.updateRxStatus(ip, port);
 
-            if (msgType == MsgCodec.MessageType.LINE) {
-                var lines = msgCodec.decodeLines();
-                lines.forEach(line -> line.c[4] = index);
-                
-                clientData.addLines(lines);
-                p.drawLines(lines);
-            } else if (msgType == MsgCodec.MessageType.STATUS_CLIENT) {
-                String text = msgCodec.decodeClientStatusMsg();
-                if (text != null) {
-                    clientData.updateRxStatus(ip, port);
+            if (null != msgType) switch (msgType) {
+                case LINE -> {
+                    var lines = msgCodec.decodeLines();
+                    lines.forEach(line -> line.c[4] = index);
+                    clientData.addLines(lines);
+                    p.drawLines(lines);
+                }
+                case STATUS_CLIENT -> {
+                    String text = msgCodec.decodeClientStatusMsg();
+                    if (text != null) {
+                        clientData.updateRxStatus(ip, port);
+                    }
+                }
+                case WIPE -> {
+                    clientData.setWipeRequested(true);
+                }
+                default -> {
+                    System.out.println("Received unsupported message");
                 }
             }
         } else {
-            System.out.println("ServerReceive: Could not identify incoming message");
+            System.out.println("Could not identify incoming message");
         }
         return msgCodec.getType() != MsgCodec.MessageType.INVALID;
     }
