@@ -35,7 +35,7 @@ public class ClientData {
             ClientStatus cs = clients.get(ipport);
             if (cs == null) {
                 if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
-                    var clientStatus = new ClientStatus(ip, port, clients.size());
+                    var clientStatus = new ClientStatus(ip, port, clients.size()-1);
                     clientStatus.update();
                     clients.put(ipport, clientStatus);
                     pushAccumulatedPaint();
@@ -119,7 +119,6 @@ public class ClientData {
     private void pushAccumulatedPaint() {
         try {
             in.addAll(paintAccumulator.currentLines());
-            System.out.println("adding acc lines: " + paintAccumulator.currentLines().size());
         } catch (NullPointerException e) {
             System.out.println("Internal error: Accumulator object has not been created");
         }
