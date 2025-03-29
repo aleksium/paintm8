@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 public final class Canvas extends JPanel {
 
-    private final Color[] COLOR_PALETTE = new Color[]{Color.YELLOW, Color.YELLOW, Color.ORANGE, Color.MAGENTA, Color.RED, Color.MAGENTA, Color.YELLOW, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
+    private final Color[] COLOR_PALETTE = new Color[]{Color.YELLOW, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.RED, Color.GREEN, Color.PINK, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
 
     private final BufferedImage panelImage = new BufferedImage(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final Graphics2D panel = panelImage.createGraphics();

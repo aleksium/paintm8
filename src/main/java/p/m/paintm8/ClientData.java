@@ -35,7 +35,7 @@ public class ClientData {
             ClientStatus cs = clients.get(ipport);
             if (cs == null) {
                 if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
-                    var clientStatus = new ClientStatus(ip, port, clients.size()-1);
+                    var clientStatus = new ClientStatus(ip, port, clients.size());
                     clientStatus.update();
                     clients.put(ipport, clientStatus);
                     pushAccumulatedPaint();
@@ -49,7 +49,7 @@ public class ClientData {
         return 0;
     }
 
-    private void dropDisconnects() {
+    public void dropDeads() {
         long currTime = System.currentTimeMillis();
         synchronized (this) {
             var itr = clients.entrySet().iterator();

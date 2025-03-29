@@ -33,9 +33,10 @@ class ServerSend extends Thread
                     Thread.sleep(25);
                     if (tick++ > 400) {
                         tick = 0;
+                        clientData.dropDeads();
                         msgCodec.mountEncodeBuffer(buffer);
                         if (msgCodec.encodeServerStatusMsg("Ping from server")) {
-                            sendToAll();
+                            sendToAll(true);
                         }
                     }
                 } catch(InterruptedException e) {
@@ -53,7 +54,12 @@ class ServerSend extends Thread
     }
 
     private void sendToAll() {
-        for (var client : clientData.getAllIPs()) {
+        sendToAll(false);
+    }
+    
+    private void sendToAll(boolean giveStatus) {
+        var clients = clientData.getAllIPs();
+        for (var client : clients) {
             try {
                 IpPort ip = client.getIpPort();
                 InetAddress addr = InetAddress.getByName(ip.ip());
@@ -66,6 +72,14 @@ class ServerSend extends Thread
             } catch (IOException e) {
                 System.out.println("IOException: " + e);
             }
+        }
+        if (giveStatus) {
+            System.out.println("-------------------");
+            System.out.println("Painters:");
+            for (var client : clients) {
+                System.out.println(client);
+            }
+            System.out.println("-------------------");
         }
     }
 
