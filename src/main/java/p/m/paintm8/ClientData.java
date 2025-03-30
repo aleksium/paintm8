@@ -2,13 +2,13 @@ package p.m.paintm8;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientData {
 
-    private final HashMap<String, ClientStatus> clients = new HashMap<>();
+    private final ConcurrentHashMap<String, ClientStatus> clients = new ConcurrentHashMap<>();
     private final List<Line> lines1 = new ArrayList(200);
     private final List<Line> lines2 = new ArrayList(200);
     private List<Line> in = lines1;
@@ -30,34 +30,31 @@ public class ClientData {
         if (!isServer) {
             return -1;
         }
-        synchronized (this) {
-            String ipport = ip + port;
-            ClientStatus cs = clients.get(ipport);
-            if (cs == null) {
-                if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
-                    var clientStatus = new ClientStatus(ip, port, clients.size());
-                    clientStatus.update();
-                    clients.put(ipport, clientStatus);
-                    pushAccumulatedPaint();
-                    return clientStatus.getIndex();
-                }
-            } else {
-                cs.update();
-                return cs.getIndex();
+        String ipport = ip + port;
+
+        ClientStatus cs = clients.get(ipport);
+        if (cs == null) {
+            if (clients.size() <= Environment.MAX_NUMBER_OF_CLIENTS) {
+                var clientStatus = new ClientStatus(ip, port, clients.size());
+                clientStatus.update();
+                clients.put(ipport, clientStatus);
+                pushAccumulatedPaint();
+                return clientStatus.getIndex();
             }
+        } else {
+            cs.update();
+            return cs.getIndex();
         }
         return 0;
     }
 
     public void dropDeads() {
         long currTime = System.currentTimeMillis();
-        synchronized (this) {
-            var itr = clients.entrySet().iterator();
-            while (itr.hasNext()) {
-                var entry = itr.next();
-                if (currTime - entry.getValue().getLastSignOfLife() > 21000) {
-                    itr.remove();
-                }
+        var itr = clients.entrySet().iterator();
+        while (itr.hasNext()) {
+            var entry = itr.next();
+            if (currTime - entry.getValue().getLastSignOfLife() > Environment.MAX_TIME_WITHOUT_SIGN_OF_LIFE.toMillis()) {
+                itr.remove();
             }
         }
     }
@@ -84,30 +81,28 @@ public class ClientData {
         }
     }
 
-    public List<Line> getAllLines() {
-        synchronized (this) {
-            if (phase1) {
-                phase1 = false;
-                lines2.clear();
-                in = lines2;
-                out = lines1;
-            } else {
-                phase1 = true;
-                lines1.clear();
-                in = lines1;
-                out = lines2;
-            }
+    public synchronized List<Line> getAllLines() {
+        if (phase1) {
+            phase1 = false;
+            lines2.clear();
+            in = lines2;
+            out = lines1;
+        } else {
+            phase1 = true;
+            lines1.clear();
+            in = lines1;
+            out = lines2;
         }
         return out;
     }
-    
+
     public void setWipeRequested(boolean wipeRequested) {
         this.wipeRequested.set(wipeRequested);
         if (isServer) {
             paintAccumulator.clearLines();
         }
     }
-    
+
     public boolean isWipeRequested() {
         return wipeRequested.get();
     }
@@ -116,7 +111,7 @@ public class ClientData {
         return clients.size();
     }
 
-    private void pushAccumulatedPaint() {
+    private synchronized void pushAccumulatedPaint() {
         try {
             in.addAll(paintAccumulator.currentLines());
         } catch (NullPointerException e) {

@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 public final class Canvas extends JPanel {
 
-    private final Color[] COLOR_PALETTE = new Color[]{Color.YELLOW, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.RED, Color.GREEN, Color.PINK, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
+    private final Color[] COLOR_PALETTE = new Color[]{Color.WHITE, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.RED, Color.GREEN, Color.PINK, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
 
     private final BufferedImage panelImage = new BufferedImage(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final Graphics2D panel = panelImage.createGraphics();
@@ -117,15 +117,15 @@ public final class Canvas extends JPanel {
         panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
         var random = new Random(123);
-        var gray1 = Color.getHSBColor(0, 0, 0.35f);
-        var gray2 = Color.getHSBColor(0, 0, 0.38f);
-        for (int w = 0; w < Environment.CANVAS_WIDTH; w++) {
-            for (int h = 0; h < Environment.CANVAS_HEIGHT; h++) {
+        var gray1 = Color.getHSBColor(0.9f, 0.3f, 0.15f);
+        var gray2 = Color.getHSBColor(0.85f, 0.25f, 0.13f);
+        for (int w = 0; w < Environment.CANVAS_WIDTH; w +=40) {
+            for (int h = 0; h < Environment.CANVAS_HEIGHT; h += 40) {
                 panel.setColor(random.nextBoolean() ? gray1 : gray2);
-                panel.drawRect(w, h, 1, 1);
+                panel.fillRect(w, h, 40, 40);
             }
         }
-        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
 
         repaint();
     }
@@ -157,7 +157,7 @@ public final class Canvas extends JPanel {
             x2 = e.getX();
             y2 = e.getY();
 
-            panel.setColor(Color.YELLOW);
+            panel.setColor(Color.WHITE);
             panel.drawLine(x1, y1, x2, y2);
             Line line = new Line(x1, y1, x2, y2, 0);
             outgoingPaint.addLine(line);
