@@ -76,10 +76,10 @@ public final class Canvas extends JPanel {
     public void drawLines(List<Line> additionalLines) {
         for (var line : additionalLines) {
             var index = line.c[4];
-            if (index < 0 || index >= COLOR_PALETTE.length) {
+            if (index < 0 || index >= Environment.MAX_NUMBER_OF_CLIENTS) {
                 continue;
             }
-            panel.setColor(COLOR_PALETTE[index]);
+            panel.setColor(COLOR_PALETTE[index % COLOR_PALETTE.length]);
 
             panel.drawLine(line.c[0], line.c[1], line.c[2], line.c[3]);
         }
