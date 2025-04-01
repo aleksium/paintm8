@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 public final class Canvas extends JPanel {
 
-    private final Color[] COLOR_PALETTE = new Color[]{Color.WHITE, Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.RED, Color.GREEN, Color.PINK, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
+    private final Color[] COLOR_PALETTE = new Color[]{new Color(159, 111, 148), Color.CYAN, Color.ORANGE, Color.MAGENTA, Color.RED, Color.GREEN, Color.PINK, Color.WHITE, Color.LIGHT_GRAY, Color.BLACK};
 
     private final BufferedImage panelImage = new BufferedImage(Environment.CANVAS_WIDTH, Environment.CANVAS_HEIGHT, BufferedImage.TYPE_INT_RGB);
     private final Graphics2D panel = panelImage.createGraphics();
@@ -117,15 +117,15 @@ public final class Canvas extends JPanel {
         panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
         var random = new Random(123);
-        var gray1 = Color.getHSBColor(0.9f, 0.3f, 0.15f);
-        var gray2 = Color.getHSBColor(0.85f, 0.25f, 0.13f);
-        for (int w = 0; w < Environment.CANVAS_WIDTH; w +=40) {
+        var lightShade = new Color(59, 11, 48);
+        var darkShade = new Color(52, 4, 41);
+        for (int w = 0; w < Environment.CANVAS_WIDTH; w += 40) {
             for (int h = 0; h < Environment.CANVAS_HEIGHT; h += 40) {
-                panel.setColor(random.nextBoolean() ? gray1 : gray2);
+                panel.setColor(random.nextBoolean() ? lightShade : darkShade);
                 panel.fillRect(w, h, 40, 40);
             }
         }
-        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
+        panel.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 
         repaint();
     }

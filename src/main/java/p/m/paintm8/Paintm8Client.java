@@ -15,7 +15,8 @@ public class Paintm8Client {
     public static void main(String[] args) {
         ClientData clientData = new ClientData(false);
         Canvas painter = new Canvas(clientData);
-        JMenuBar bar = new JMenuBar();
+        JMenuBar bar = new StyledMenuBar();
+        bar.setBorderPainted(false);
         
         try {
             DatagramSocket sock = new DatagramSocket();
